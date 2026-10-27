@@ -65,8 +65,8 @@ What was missing: even with the persistent instructions, nothing told the AI abo
 **Improved prompt** (what we would send now):
 
 ```text
-Context: ING8100 (Polytechnique Montréal), lab 3, team of 3. We build a
-reproducible project around the TEM dataset (mouse optic nerve, TEM1) we
+Context: ING8100 (Polytechnique Montréal), lab 3, team of 2. We build a
+reproducible project around the TEM dataset (mouse corpus callosum, TEM1) we
 published on Borealis in lab 2. Lab instructions:
 https://reproducible-research.polymtl.ca/fr/lab3/ (read them first).
 
