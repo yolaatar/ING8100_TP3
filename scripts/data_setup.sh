@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Download one TEM1 image from our Borealis dataset into data/raw/.
 #
+# Only one image on purpose, to keep compute time reasonable: segmenting a
+# single image with ADS takes about 5 minutes on CPU, and the dataset has 142.
+# Any other sample can be analyzed by changing FILE_NAME and FILE_ID (IDs are
+# listed by the Borealis API for the dataset DOI below).
+#
 # Usage (from the repository root):
 #     bash scripts/data_setup.sh
 
