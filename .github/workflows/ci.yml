@@ -35,7 +35,8 @@ jobs:
           python-version: "3.11"
       - name: Lint Python scripts (ruff)
         run: |
-          pip install ruff
+          # Pinned so new ruff releases cannot change the rules under our feet
+          pip install ruff==0.17.3
           ruff check scripts/
       - name: Lint shell scripts (shellcheck)
         run: shellcheck scripts/*.sh

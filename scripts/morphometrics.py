@@ -21,9 +21,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from PIL import Image
-
 from AxonDeepSeg.morphometrics.compute_morphometrics import get_axon_morphometrics
+from PIL import Image
 
 # TEM1 images are acquired at 2.36 nm/px; ADS expects micrometers per pixel.
 TEM1_PIXEL_SIZE_UM = 0.00236
