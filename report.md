@@ -19,7 +19,7 @@ We use the dataset our team deposited on Borealis in Lab 2: _TEM Images of Corpu
 - Manual axon and myelin masks are provided for every image. We do not use them in this analysis, since our pipeline segments the images automatically.
 - Mice were either controls or cuprizone-intoxicated, but **the group of each mouse is not recorded in the dataset**, so we do not compare groups.
 
-**Scope.** We analyze a single image, `sub-nyuMouse11_sample-0006_TEM.png`, to keep compute time reasonable: segmenting one image with ADS takes about 5 minutes on CPU, and the dataset holds 142. The pipeline itself works on any number of images, and `analyze.py` accepts several tables at once.
+**Scope.** We analyze a single image, `sub-nyuMouse11_sample-0006_TEM.png`, to keep compute time reasonable: segmenting one image with ADS takes about 15 minutes on CPU, and the dataset holds 142. The pipeline itself works on any number of images, and `analyze.py` accepts several tables at once.
 
 ## 3. Methodology
 
@@ -64,13 +64,15 @@ Figure 2 answers the second part of the question. The g-ratio increases with axo
 
 ## 5. Discussion and limitations
 
-TODO. Points to cover:
+**Comparison with the literature.** Our values are of the same order as those reported from electron microscopy of the adult mouse corpus callosum. West et al. (2015) measured a mean axon diameter of 0.56 ± 0.32 µm and a mean g-ratio of 0.81 ± 0.07 in control mice, in the genu and midbody ([doi:10.1016/j.dib.2015.08.022](https://doi.org/10.1016/j.dib.2015.08.022)). Our mean diameter is somewhat larger (0.71 µm). This is partly expected, since our cleaning step removes objects smaller than 0.3 µm, which excludes the smallest axons and raises the mean. Our mean g-ratio is lower (0.75), meaning thicker myelin relative to the axon. This could come from the region (splenium vs genu and midbody), from the mouse, or from how the automatic segmentation places the myelin boundary. One image is not enough to tell these apart. West et al. also found that the g-ratio increases with axon diameter, following a non-linear (log-linear) curve. The positive correlation we observe (r = 0.42) is consistent with that trend, although a linear fit cannot capture its curvature.
 
-- Mean g-ratio and diameter compared with values reported for the mouse corpus callosum (cite a reference).
-- Measurements are fully automatic: segmentation errors (merged axons, missed thin myelin) propagate into the g-ratio. The manual masks in the dataset could be used to validate ADS in future work.
-- A single image (21 axons) from one mouse: the results describe this sample, not the whole population. Running the pipeline on more images is only a matter of compute time.
-- The control and cuprizone groups cannot be separated with the information in the dataset, so the variability between mice may partly reflect demyelination.
-- The diameter is the equivalent circular diameter, which underestimates the size of elongated axons cut obliquely.
+**Limitations.**
+
+- *Fully automatic measurements.* Segmentation errors propagate directly into the indicators: two touching axons merged into one inflate the diameter, and a thin myelin sheath that is partly missed biases the g-ratio upward. The dataset includes manual axon and myelin masks for every image. Comparing them with the ADS masks would quantify this error, and is the most direct way to validate the pipeline.
+- *Small sample.* We analyzed a single image from one mouse, which leaves 21 axons after cleaning. The results describe this sample, not the splenium of the mouse population, and the correlation estimate is unstable at this size. The pipeline already accepts any number of images, so extending the analysis is only a matter of compute time (about 15 minutes per image on CPU).
+- *Unknown experimental group.* The dataset does not record which mice were controls and which were cuprizone-intoxicated. Without that information, our values cannot be interpreted as healthy reference values, and pooling several mice would mix the two conditions. Since demyelination raises the g-ratio, this mixing would inflate the variability between mice.
+- *Diameter definition.* Axon diameter is computed as the diameter of a circle with the same area. For elongated or obliquely cut axons, this underestimates the true caliber, which in turn affects the g-ratio.
+- *Cleaning thresholds.* The 0.3 µm minimum diameter and the exclusion of border axons are reasonable but arbitrary choices. Both shift the distribution toward larger axons, and other thresholds would give slightly different indicators.
 
 ## 6. Reproducing these results
 
