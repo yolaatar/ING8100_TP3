@@ -47,9 +47,20 @@ license), ask me instead of guessing, and leave clearly marked TODO
 placeholders for what only the team can fill in.
 ```
 
+**Context the AI already had (not visible in the prompt above):**
+
+The prompt reads as vague on its own, but it was not sent cold. Claude Code automatically loads a persistent instruction file (`~/.claude/CLAUDE.md`) at the start of every session, and that file was already in place when this prompt was run. It is personal and shared across all my projects, so it is not part of this repository, but it gave the AI a lot of the context the prompt seems to skip:
+
+- **Who I am**: research master's student at NeuroPoly (Polytechnique Montréal), working on axon segmentation in electron microscopy with AxonDeepSeg. This is why the AI already knew what a TEM dataset of myelinated axons is and did not need it explained.
+- **Git and GitHub conventions**: concise, descriptive commit messages; short, casual PR descriptions; no AI attribution lines or "generated with" footers in commits, PRs or comments.
+- **Writing style**: short and human, no em dashes.
+- **Project-specific rules**: other repositories I work in have their own `CLAUDE.md` with branch naming conventions (e.g. `yl/feature-name`), one feature per branch/PR, PR workflow, and analysis conventions (figure format, which venv to use). These shaped the habits the AI applied here (branch naming in CONTRIBUTING.md, PR-based workflow).
+
+So the short prompt only had to cover what was specific to this lab: the source of truth (the lab page), the deliverables and the stop condition. The trade-off is reproducibility: someone else running the same prompt without that file would get a different result, which is why the improved prompt below spells the context out explicitly.
+
 What worked: a link to the source of truth (the lab page), an explicit list of deliverables, and a stop condition ("stop after these items"), so the AI did not invent analysis code for a dataset it knows nothing about.
 
-What was missing: the context (team, dataset, course), the repository name and visibility, who the reviewers are, the expected language and style of the documents, and what "done" means. The AI had to ask for the repo name, teammates and license before starting, and left the dataset as placeholders.
+What was missing: even with the persistent instructions, nothing told the AI about this specific course and team: the course and lab number, the teammates, which dataset from lab 2 we are using, the repository name and visibility, who the reviewers are, and what "done" means. The AI had to ask for the repo name, teammates and license before starting, and left the dataset as placeholders.
 
 **Improved prompt** (what we would send now):
 
@@ -81,7 +92,7 @@ direct push to main is rejected. Tell me what you could not do or verify.
 
 What the improved version adds:
 
-- **Context** (course, team, dataset), so the AI does not have to ask or guess.
+- **Context** (course, team, dataset), so the AI does not have to ask or guess, and so the prompt works on its own without my personal `CLAUDE.md`.
 - **Concrete parameters** (repo name and visibility, teammate, exact protection rules) instead of leaving them to be asked.
 - **Constraints on format and honesty**: language, style, and no invented content about the data.
 - **A definition of done** that can be checked (push rejected on main), including asking the AI to report what it could not verify.
