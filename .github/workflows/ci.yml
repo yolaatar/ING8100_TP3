@@ -1,0 +1,88 @@
+# Checks run on every pull request (opened or updated) and on pushes to main.
+# They do not install AxonDeepSeg (several GB with PyTorch), so they stay fast;
+# the ADS steps are validated by running the pipeline locally.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  required-files:
+    name: Required repository files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that the lab deliverables exist
+        run: |
+          missing=0
+          for f in README.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md AI_Prompts.md; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing required file: $f"
+              missing=1
+            fi
+          done
+          exit $missing
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Lint Python scripts (ruff)
+        run: |
+          # Pinned so new ruff releases cannot change the rules under our feet
+          pip install ruff==0.17.3
+          ruff check scripts/
+      - name: Lint shell scripts (shellcheck)
+        run: shellcheck scripts/*.sh
+
+  analysis-smoke-test:
+    name: Analysis smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install analysis dependencies
+        run: pip install pandas numpy matplotlib
+      # Synthetic tables with the same columns as morphometrics.py output, so
+      # analyze.py can be tested without ADS or real data.
+      - name: Generate synthetic morphometrics
+        run: |
+          mkdir -p ci_data
+          python - <<'EOF'
+          import numpy as np
+          import pandas as pd
+
+          rng = np.random.default_rng(0)
+          for k in range(2):
+              n = 300
+              diam = rng.gamma(4, 0.2, n) + 0.3
+              pd.DataFrame({
+                  "axon_id": range(n),
+                  "x_px": rng.integers(0, 2000, n),
+                  "y_px": rng.integers(0, 2000, n),
+                  "axon_diameter_um": diam,
+                  "myelin_thickness_um": 0.1 + 0.05 * diam,
+                  "g_ratio": np.clip(0.6 + 0.05 * diam + rng.normal(0, 0.04, n), 0.3, 0.95),
+                  "axon_area_um2": np.pi * (diam / 2) ** 2,
+                  "myelin_area_um2": rng.uniform(0.1, 1, n),
+                  "eccentricity": rng.uniform(0, 0.9, n),
+              }).to_csv(f"ci_data/img{k}_morphometrics_clean.csv", index=False)
+          EOF
+      - name: Run analyze.py
+        run: |
+          python scripts/analyze.py ci_data/*_morphometrics_clean.csv \
+            --results-dir ci_out/results --figures-dir ci_out/figures
+      - name: Check outputs
+        run: |
+          for f in ci_out/results/summary_per_image.csv ci_out/results/summary_overall.csv \
+                   ci_out/figures/axon_diameter_distribution.png ci_out/figures/gratio_vs_diameter.png; do
+            test -s "$f" || { echo "::error::Missing output: $f"; exit 1; }
+          done

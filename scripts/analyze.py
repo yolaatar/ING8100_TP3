@@ -19,11 +19,11 @@ import argparse
 import sys
 from pathlib import Path
 
-import matplotlib
-matplotlib.use("Agg")  # no display needed, figures are only saved to disk
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+plt.switch_backend("Agg")  # no display needed, figures are only saved to disk
 
 
 def load(csv_paths: list[Path]) -> pd.DataFrame:
