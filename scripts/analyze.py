@@ -9,7 +9,7 @@ Outputs:
     results/summary_per_image.csv   indicators for each image
     results/summary_overall.csv     indicators pooled over all axons
     figures/axon_diameter_distribution.png
-    figures/gratio_vs_diameter.png
+    figures/g_ratio_vs_diameter.png
 
 Usage:
     python scripts/analyze.py data/processed/*_morphometrics_clean.csv
@@ -47,7 +47,7 @@ def indicators(df: pd.DataFrame) -> pd.Series:
         "myelin_thickness_mean_um": df["myelin_thickness_um"].mean(),
         # Pearson correlation between caliber and g-ratio: tells whether larger
         # axons are relatively less (positive) or more (negative) myelinated.
-        "corr_diameter_gratio": df["axon_diameter_um"].corr(df["g_ratio"]),
+        "corr_diameter_g_ratio": df["axon_diameter_um"].corr(df["g_ratio"]),
     })
 
 
@@ -67,7 +67,7 @@ def plot_diameter_distribution(df: pd.DataFrame, out_path: Path):
     plt.close(fig)
 
 
-def plot_gratio_vs_diameter(df: pd.DataFrame, out_path: Path):
+def plot_g_ratio_vs_diameter(df: pd.DataFrame, out_path: Path):
     """Scatter of g-ratio against axon diameter, with a linear fit to show the trend."""
     x, y = df["axon_diameter_um"], df["g_ratio"]
     slope, intercept = np.polyfit(x, y, deg=1)
@@ -113,7 +113,7 @@ def main():
     print(overall.round(3).to_string())
 
     plot_diameter_distribution(df, args.figures_dir / "axon_diameter_distribution.png")
-    plot_gratio_vs_diameter(df, args.figures_dir / "gratio_vs_diameter.png")
+    plot_g_ratio_vs_diameter(df, args.figures_dir / "g_ratio_vs_diameter.png")
     print(f"\nTables saved in {args.results_dir}/, figures saved in {args.figures_dir}/")
 
 
