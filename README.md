@@ -4,8 +4,6 @@
 
 Reproducible open science project built around the dataset our team published on Borealis in Lab 2.
 
-> **Status:** work in progress. The repository is set up (license, contribution guidelines, code of conduct, branch protection). Scripts, environment and report are coming next and this README will be updated as they land.
-
 ## Contents
 
 1. [Overview](#overview)
@@ -21,14 +19,17 @@ Reproducible open science project built around the dataset our team published on
 
 ## Overview
 
-**Research question:** _TODO: state the research question._
+**Research question:** in the splenium of the mouse corpus callosum, how are axon diameter and g-ratio distributed, and are larger axons relatively more or less myelinated than smaller ones?
 
-This repository will contain everything needed to go from the raw dataset on Borealis to the figures and summary indicators in our report:
+Axons and myelin are segmented automatically with AxonDeepSeg (ADS) on TEM images from the dataset we published on Borealis in Lab 2. Per-axon morphometrics are then computed, cleaned and summarized. Results and their interpretation are in the **[report](report.md)**.
+
+The repository contains everything needed to go from the raw data on Borealis to the figures in the report:
 
 1. a script that downloads the data from Borealis,
-2. a preprocessing script that cleans it,
-3. an analysis script that computes summary indicators and produces figures,
-4. a Markdown report that ties it all together.
+2. a segmentation script (ADS),
+3. a preprocessing script that computes and cleans per-axon morphometrics,
+4. an analysis script that computes summary indicators and produces figures,
+5. a Markdown report that ties it all together.
 
 ## Data Availability
 
@@ -40,6 +41,7 @@ The data is **not** committed to this repository. It is hosted on Borealis and i
 
 ### Data Sources
 
+- **Dataset:** TEM Images of Corpus Callosum in Control and Cuprizone-Intoxicated Mice with Axon and Myelin Segmentations (re-deposit of DANDI:001436, Jelescu et al., NeuroImage 2016)
 - **Filename:** data/raw/sub-nyuMouse11_sample-0006_TEM.png
 - **Source:** Borealis, the Canadian Dataverse Repository
 - **URL / DOI:** doi:10.80240/FK2/IFEI6R
@@ -53,58 +55,90 @@ The data is **not** committed to this repository. It is hosted on Borealis and i
 
 ## Instructions for Replicators
 
-_TODO: will be completed once the environment and scripts are in place._
+All commands are run from the repository root, in bash (Git Bash on Windows).
 
 ```bash
+# 1. Get the code
 git clone https://github.com/yolaatar/ING8100_TP3.git
 cd ING8100_TP3
+
+# 2. Create the environment (Python 3.11/3.12 + AxonDeepSeg v5.5.0 + model)
+bash scripts/setup_env.sh
+source .venv/bin/activate        
+
+# 3. Download the data from Borealis
+bash scripts/data_setup.sh
+
+# 4. Segment axons and myelin -> results/segmentation/
+python scripts/segment.py data/raw/sub-nyuMouse11_sample-0006_TEM.png
+
+# 5. Compute and clean morphometrics -> data/processed/
+python scripts/morphometrics.py results/segmentation/*_seg-axon.png
+
+# 6. Summary indicators and figures -> results/ and figures/
+python scripts/analyze.py data/processed/*_morphometrics_clean.csv
 ```
+
+`figures/` is committed because the report embeds it. Running step 6 overwrites it with identical figures.
 
 ## List of Exhibits
 
-_TODO: figures and tables will be listed here._
-
-| Exhibit name | Output filename | Script | Note |
-|--------------|-----------------|--------|------|
-|              |                 |        |      |
+| Exhibit | Output file | Script | Note |
+|---|---|---|---|
+| Figure 1: distribution of axon diameters | `figures/axon_diameter_distribution.png` | `analyze.py` | Committed, embedded in the report |
+| Figure 2: g-ratio vs axon diameter | `figures/g_ratio_vs_diameter.png` | `analyze.py` | Committed, embedded in the report |
+| Table 1: summary indicators (all axons) | `results/summary_overall.csv` | `analyze.py` | Generated, not committed |
+| Summary indicators per image | `results/summary_per_image.csv` | `analyze.py` | Generated, not committed |
 
 ## Requirements
 
 ### Software Requirements
 
-_TODO: Python version and packages (pandas, numpy, matplotlib), exported in the environment file._
+- Python 3.11 or 3.12 (required by AxonDeepSeg)
+- AxonDeepSeg v5.5.0, which brings PyTorch, nnU-Net, pandas, NumPy and Matplotlib
+- Environment manager: Python `venv` (no Conda). Exact versions are exported in [`requirements.txt`](requirements.txt).
+- `curl` for the download script
 
 ### Memory, Runtime and Storage Requirements
 
-_TODO_
+- Storage: about 2 GB for the virtual environment and the ADS model, plus about 6 MB for the image
+- Runtime: about 15 min on CPU (MacBook) for the segmentation of one image; the other steps take a few seconds
+- No GPU required (`segment.py --gpu-id 0` to use one)
 
 ## Code Description
 
-_TODO_
+| Script | Step | Input | Output |
+|---|---|---|---|
+| `scripts/setup_env.sh` | Environment | none | `.venv/`, `requirements.txt` |
+| `scripts/data_setup.sh` | Download | Borealis API | `data/raw/*.png` |
+| `scripts/segment.py` | Segmentation (ADS generalist model) | TEM image | `results/segmentation/*_seg-axon.png`, `*_seg-myelin.png` |
+| `scripts/morphometrics.py` | **Preprocessing**: per-axon morphometrics, then cleaning (removes border axons, missing myelin, g-ratio outside ]0, 1[, diameter < 0.3 µm) | axon + myelin masks | `data/processed/*_morphometrics_raw.csv`, `*_clean.csv` |
+| `scripts/analyze.py` | Analysis: indicators (mean/SD diameter and g-ratio, myelin thickness, diameter–g-ratio correlation) and figures | cleaned CSVs | `results/*.csv`, `figures/*.png` |
 
 ## Folder Structure
-
-Planned layout:
 
 ```
 ING8100_TP3/
 ├── README.md
+├── report.md
 ├── LICENSE
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
 ├── AI_Prompts.md
-├── environment.yml
+├── requirements.txt
 ├── .gitignore
-├── data/
+├── .github/workflows/ci.yml
+├── data/                 # not committed, filled by the scripts
 │   ├── raw/
 │   └── processed/
 ├── scripts/
-│   ├── download_data.py
-│   ├── preprocess.py
+│   ├── setup_env.sh
+│   ├── data_setup.sh
+│   ├── segment.py
+│   ├── morphometrics.py
 │   └── analyze.py
-├── notebooks/
-├── figures/
-└── results/
+├── figures/              # committed, embedded in the report
+└── results/              # not committed (segmentation masks, summary tables)
 ```
 
 ## Continuous Integration
