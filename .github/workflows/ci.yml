@@ -83,6 +83,6 @@ jobs:
       - name: Check outputs
         run: |
           for f in ci_out/results/summary_per_image.csv ci_out/results/summary_overall.csv \
-                   ci_out/figures/axon_diameter_distribution.png ci_out/figures/gratio_vs_diameter.png; do
+                   ci_out/figures/axon_diameter_distribution.png ci_out/figures/g_ratio_vs_diameter.png; do
             test -s "$f" || { echo "::error::Missing output: $f"; exit 1; }
           done
