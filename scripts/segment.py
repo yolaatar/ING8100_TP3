@@ -43,6 +43,9 @@ def segment(image_path: Path, output_dir: Path, model_path: Path, gpu_id: int) -
     # data folder only contains the original downloaded files.
     for tmp in image_path.parent.glob(f"{image_path.stem}_grayscale.*"):
         tmp.unlink()
+    # nnUNet also copies its model config files next to the image.
+    for name in ("dataset.json", "plans.json", "predict_from_raw_data_args.json"):
+        (image_path.parent / name).unlink(missing_ok=True)
     return moved
 
 
