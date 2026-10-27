@@ -35,7 +35,7 @@ COLUMNS = {
     "y0": "y_px",
     "axon_diam": "axon_diameter_um",
     "myelin_thickness": "myelin_thickness_um",
-    "gratio": "g_ratio",
+    "g_ratio": "g_ratio",
     "axon_area": "axon_area_um2",
     "myelin_area": "myelin_area_um2",
     "eccentricity": "eccentricity",
