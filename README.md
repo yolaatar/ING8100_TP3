@@ -39,12 +39,11 @@ The data is **not** committed to this repository. It is hosted on Borealis and i
 
 ### Data Sources
 
-- **Filename:** _TODO: exact file name on Borealis_
+- **Filename:** data/raw/sub-nyuMouse11_sample-0006_TEM.png
 - **Source:** Borealis, the Canadian Dataverse Repository
-- **URL / DOI:** _TODO: Borealis DOI_
-- **Access date:** _TODO_
-- **Variable names:** _TODO_
-- **License:** _TODO: license of the dataset on Borealis_
+- **URL / DOI:** doi:10.80240/FK2/IFEI6R
+- **Access date:** 2026-10-27
+- **License:** CC-BY 4.0
 
 ### Statement about Rights
 
