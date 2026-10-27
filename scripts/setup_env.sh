@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# $PYTHON is left unquoted on purpose: it can hold "py -3.11" (Windows launcher),
+# which must be split into a command and its argument.
+# shellcheck disable=SC2086
 # Create a Python virtual environment with AxonDeepSeg (ADS) and its dependencies.
 #
 # Usage (from the repository root, in bash / Git Bash on Windows):

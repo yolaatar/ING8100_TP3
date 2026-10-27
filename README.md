@@ -15,8 +15,9 @@ Reproducible open science project built around the dataset our team published on
 5. [Requirements](#requirements)
 6. [Code Description](#code-description)
 7. [Folder Structure](#folder-structure)
-8. [Contributing](#contributing)
-9. [License](#license)
+8. [Continuous Integration](#continuous-integration)
+9. [Contributing](#contributing)
+10. [License](#license)
 
 ## Overview
 
@@ -106,6 +107,18 @@ ING8100_TP3/
 ├── figures/
 └── results/
 ```
+
+## Continuous Integration
+
+A GitHub Actions workflow ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs automatically every time a pull request is opened or updated, and on every push to `main`. It has three jobs:
+
+| Job | What it checks |
+|-----|----------------|
+| Required repository files | `README.md`, `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and `AI_Prompts.md` exist |
+| Lint | Python scripts pass [ruff](https://docs.astral.sh/ruff/), shell scripts pass [shellcheck](https://www.shellcheck.net/) |
+| Analysis smoke test | `analyze.py` runs on synthetic morphometrics tables and produces the expected tables and figures |
+
+The workflow does not install AxonDeepSeg (several GB with PyTorch), so the segmentation and morphometrics steps are validated by running the pipeline locally.
 
 ## Contributing
 
